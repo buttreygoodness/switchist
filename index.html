@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Switcher: Setup</title>
+    <title>Switcher: Display</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -13,9 +13,10 @@
 
     <!-- Le styles -->
     <link href="./bootstrap/bootstrap.css" rel="stylesheet">
-    <link rel="stylesheet" href="stylesheets/switcher2.css" type="text/css" media="screen" title="no title" charset="utf-8">
+    <link rel="stylesheet" href="stylesheets/switcher.css" type="text/css" media="screen" title="no title" charset="utf-8">
     
     <script src="javascripts/lib/head.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="http://localhost:3030/socket.io/socket.io.js" type="text/javascript" charset="utf-8"></script>
     
     <style type="text/css">
       body {
@@ -35,42 +36,41 @@
     <div class="topbar">
       <div class="fill">
         <div class="container">
-          <a class="brand" href="#">Switcher: Display</a>
-          <!--
-          <ul class="nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-          -->
+          <a class="brand" href="#">Switcher: Display: <span id='site_title'></span></a>
         </div>
       </div>
     </div>
 
-    <div class="container fillscreen">
-
-      <!-- Main hero unit for a primary marketing message or call to action -->
+    <div class="container-fluid">
 
       <!-- Example row of columns -->
       <div class="row">
-        <div class="span-24">
+        <div class="span-24 nofloat fillscreen">
           <iframe id='framer' src="http://www.corpedia.com"></iframe>
-          <div id="switcher_nav"></div>
-          <div id="switcher_control">
-            <a id='pause_button' href="#pause">pause</a>
-            <a id='unpause_button' href="#unpause">unpause</a>
-          </div>
        </div>
       </div>
 
       <footer>
-        <p>&copy; Corpedia 2011</p>
+        <div id='switcher_navigation'></div>
+        <div id='switcher_control'>
+          <a class='btn small' id='pause_button' href="#pause">Pause</a>
+        </div>
       </footer>
 
-    </div> <!-- /container -->
+    </div> 
+    <!-- /container -->
     <script type="text/javascript" charset="utf-8">
+      var socket;
       head.ready('application', function(){
+        socket = io.connect('http://localhost:3030');
+        socket.on('window location', function(data){
+          Switcher.pause();
+          Switcher.gotoLocation(data.url);
+          console.log('window location', data);
+        });
+        
         Switcher.init('framer');
+        Switcher.pause();        
       });
       
       head.js(

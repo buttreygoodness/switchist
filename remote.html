@@ -79,6 +79,14 @@
           socket.emit('change location', {url: $('#url_change').val()})
         });
         
+        socket.on('window location', function(data){
+          console.log('window location', data);
+        });
+        
+        socket.on('change location', function(data){
+          console.log('change location', data);
+        });
+        
       });
       
       head.js(

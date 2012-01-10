@@ -1,5 +1,3 @@
-/*global console*/
-
 /**
 * Switcher
 * Module Export
@@ -9,26 +7,29 @@ var Switcher = (function () {
   var sw = {},
       i_frame_ = {},
       sites = [
-        'www.corpedia.com',
-        'www.ethisphere.com',
-        'www.reddit.com'
+        'www.alistapart.com',
+        'www.slashdot.com',
+        'www.whitehouse.gov',
+        'www.slate.com'
       ],
       site_counter_ = 0,
-      switch_timer_ = 15000,
-      switch_nav_ = $('#switcher_nav'),
+      switch_timer_ = 30000,
+      switch_nav_ = $('footer #switcher_navigation'),
       timeout_,
-      highlight_classname_ = 'highlighted',
+      highlight_classname_ = 'notice',
       paused = false,
       pause_button_ = $('#pause_button'),
-      unpause_button_ = $('#unpause_button');
+      site_title_ = $('#site_title');
       
   function switchLocation(){    
     var location_ = sites[site_counter_];
     
     switch_nav_.children().each(function(i,e){
       var element_ = $(e);
+      var ref = element_.data('loc').reference;
       element_.removeClass(highlight_classname_);
-      if (e.text == location_){
+      if (ref == location_){
+        site_title_.text(ref);
         element_.addClass(highlight_classname_);
       }
     });
@@ -52,17 +53,23 @@ var Switcher = (function () {
     switchLocation();
   }
   
-  function pause(){
-    console.log('pausing');
-    paused = true;
-    clearTimeout(timeout_);
-    unpause_button_.focus();
+  function gotoLocation(location){
+    var location_ = location.replace('http://', '');
+    i_frame_.attr('src', 'http://' + location_);
+    site_title_.text(location);
   }
   
-  function unpause(){
-    console.log('unpausing');
+  function pause(){
+    paused = true;
+    clearTimeout(timeout_);
+    pause_button_.text('Play');
+    pause_button_.focus();
+  }
+  
+  function play(){
     paused = false;
     switchLocation();
+    pause_button_.text('Pause');
     pause_button_.focus();
   }
 
@@ -70,33 +77,38 @@ var Switcher = (function () {
     i_frame_ = $('#framer');
     $(sites).each(function(i,e){
       jQuery("<a>", {
-        text: e,
+        text: e.split('?')[0].split('.')[1],
         href: 'http://' + e,
+        'class': 'label',
         
         click: function(e) {
           e.preventDefault();
-          Switcher.navigateLocation(this.text);
+          Switcher.navigateLocation($(this).data('loc').reference);
         }
-      }).appendTo(switch_nav_);
+      })
+      .appendTo(switch_nav_)
+      .data('loc', {
+        'reference': e
+      });
     });
     
-    $('#pause_button, #unpause_button').click(function(e){
+    $('#pause_button').click(function(e){
       e.preventDefault();
-      Switcher[this.text]();
+      Switcher[this.text.toLowerCase()]();
     });
     
-    pause_button_.focus();
-    
-    switchLocation();
+    play();
   }
 
   sw.name = "Switcher";
   
   sw.pause = pause;
   
-  sw.unpause = unpause;
+  sw.play = play;
   
   sw.navigateLocation = navigateLocation;
+  
+  sw.gotoLocation = gotoLocation;
   
   sw.init = function (frame_name) {
     init_(frame_name);
